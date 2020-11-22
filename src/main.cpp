@@ -276,6 +276,24 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
   keys.push_back(String(topic));
   if (displayData == -1)
     displayData++;
+
+  double currentMax = 0;
+  for (auto it = mqttData.cbegin(); it != mqttData.cend(); ++it)
+  {
+    if (it->second > currentMax)
+    {
+      currentMax = it->second;
+    }
+  }
+
+  if (currentMax > configuration.fanStartTemp)
+  {
+    fanState = ON;
+  }
+  else
+  {
+    fanState = OFF;
+  }
 }
 
 void saveConfigCallback()
@@ -505,24 +523,6 @@ void loop()
   display.clearDisplay();
   client.loop();
   ArduinoOTA.handle();
-
-  unsigned currentMax = 0;
-  for (auto it = mqttData.cbegin(); it != mqttData.cend(); ++it)
-  {
-    if (it->second > currentMax)
-    {
-      currentMax = it->second;
-    }
-  }
-
-  if (currentMax > configuration.fanStartTemp)
-  {
-    fanState = ON;
-  }
-  else
-  {
-    fanState = OFF;
-  }
 
   if (displayState == ON)
   {
